@@ -11,7 +11,7 @@
 // @icon https://raw.githubusercontent.com/kas-cor/roll/master/icon.png
 // @require https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @match https://freebitco.in/*
-// @grant GM_getValue
+// @grant none
 // @run-at document-start
 // ==/UserScript==
 
@@ -29,18 +29,16 @@
 
     function checkReward(cb) {
         var reward_points = parseInt($(".user_reward_points").text().replace(',', ""));
-        var while_reward = parseInt(GM_getValue('rewards'));
         var reward_active = $("#reward_points_bonuses_main_div").is(":visible");
-        if (while_reward && !reward_active) {
+        if (!reward_active) {
             rewards.forEach(function (v) {
-                if (while_reward === v.points && reward_points >= while_reward) {
+                if (reward_points >= v.points) {
                     RedeemRPProduct(v.func);
                     cb();
                 }
             });
-        } else {
-            cb();
         }
+        cb();
     }
 
     function clickToRoll() {
