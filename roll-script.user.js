@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 190107
+// @version 190107_1
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -19,7 +19,6 @@
 (function () {
     'use strict';
 
-    var timer = {};
     var rewards = [
         {'points': 3200, 'func': 'fp_bonus_1000'},
         {'points': 1600, 'func': 'fp_bonus_500'},
@@ -28,10 +27,11 @@
         {'points': 32, 'func': 'fp_bonus_10'}
     ];
 
+    var timer = window.setTimeout(clickToRoll, 5000 + Math.random() * 5000);
+
     function checkReward(cb) {
         var reward_points = parseInt($(".user_reward_points").text().replace(',', ""));
-        var reward_active = $("#reward_points_bonuses_main_div").is(":visible");
-        if (!reward_active) {
+        if ($("#reward_points_bonuses_main_div").text() === "") {
             rewards.forEach(function (v) {
                 if (reward_points >= v.points) {
                     RedeemRPProduct(v.func);
@@ -52,8 +52,6 @@
         window.clearTimeout(timer);
         timer = window.setTimeout(clickToRoll, 5000 + Math.random() * 5000);
     }
-
-    clickToRoll();
 
     // Convert BTC to RUB
     window.setTimeout(function () {
