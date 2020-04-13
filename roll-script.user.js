@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 200413
+// @version 200413_2
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -29,7 +29,7 @@
 
     let timer;
 
-    randomTimeRun('roll');
+    randomTimeRun('roll()');
 
     function checkReward(cb) {
         let reward_points = parseInt($(".user_reward_points").text().replace(',', ""));
@@ -49,28 +49,30 @@
         const roll = $("#free_play_form_button");
         checkReward(function () {
             if (withoutCaptchas.is(":visible")) {
-                randomTimeRun('clickToRollWithoutCaptchas');
+                randomTimeRun('clickToRollWithoutCaptchas()');
             } else if (roll.is(":visible")) {
-                randomTimeRun('clickToRoll');
+                randomTimeRun('clickToRoll()');
             } else {
-                randomTimeRun('roll');
+                randomTimeRun('roll()');
             }
         });
     }
 
     function clickToRollWithoutCaptchas() {
         $("#play_without_captchas_button").trigger('click');
-        randomTimeRun('roll');
+        randomTimeRun('roll()');
     }
 
     function clickToRoll() {
         $("#free_play_form_button").trigger('click');
-        randomTimeRun('roll');
+        randomTimeRun('roll()');
     }
 
-    function randomTimeRun(func) {
+    function randomTimeRun(f) {
         window.clearTimeout(timer);
-        timer = window.setTimeout(func, 5000 + Math.random() * 5000);
+        timer = window.setTimeout(function() {
+            eval(f);
+        }, 5000 + Math.random() * 5000);
     }
 
     // Convert BTC to RUB
