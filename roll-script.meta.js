@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 200413_2
+// @version 280522
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
