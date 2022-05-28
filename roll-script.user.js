@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 200413_2
+// @version 280522
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -19,20 +19,22 @@
 (function () {
     'use strict';
 
-    let rewards = [
-        {'points': 3200, 'func': 'fp_bonus_1000'},
-        {'points': 1600, 'func': 'fp_bonus_500'},
-        {'points': 320, 'func': 'fp_bonus_100'},
-        {'points': 160, 'func': 'fp_bonus_50'},
-        {'points': 32, 'func': 'fp_bonus_10'}
-    ];
-
     let timer;
 
     randomTimeRun('roll()');
 
     function checkReward(cb) {
+        let rewards = [];
         let reward_points = parseInt($(".user_reward_points").text().replace(',', ""));
+        $("#fp_bonus_rewards div").each(function() {
+            const percent = parseInt($(this).find(".reward_product_name").text());
+            const points = parseInt($(this).find(".reward_dollar_value_style").text().replace(',', ""));
+            if (percent && points) {
+                rewards.push({
+                    'points': points, 'func': 'fp_bonus_' + percent,
+                });
+            }
+        });
         if ($("#reward_points_bonuses_main_div").text() === "") {
             rewards.forEach(function (v) {
                 if (reward_points >= v.points) {
