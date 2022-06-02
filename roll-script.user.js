@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 280522
+// @version 020622
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -26,6 +26,7 @@
     function checkReward(cb) {
         let rewards = [];
         let reward_points = parseInt($(".user_reward_points").text().replace(',', ""));
+        $(".rewards_link").click();
         $("#fp_bonus_rewards div").each(function() {
             const percent = parseInt($(this).find(".reward_product_name").text());
             const points = parseInt($(this).find(".reward_dollar_value_style").text().replace(',', ""));
@@ -43,6 +44,7 @@
                 }
             });
         }
+        $(".free_play_link").click();
         cb();
     }
 
