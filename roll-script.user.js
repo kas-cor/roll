@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 041122
+// @version 041122-1
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -54,23 +54,13 @@
         const roll = $("#free_play_form_button");
         checkReward(function () {
             if (withoutCaptchas.is(":visible")) {
-                randomTimeRun('clickToRollWithoutCaptchas()');
-            } else if (roll.is(":visible")) {
-                randomTimeRun('clickToRoll()');
-            } else {
+                $("#play_without_captchas_button").trigger('click');
                 randomTimeRun('roll()');
+            } else if (roll.is(":visible")) {
+                $("#free_play_form_button").trigger('click');
+                randomTimeRun('daysForWithdraw()');
             }
         });
-    }
-
-    function clickToRollWithoutCaptchas() {
-        $("#play_without_captchas_button").trigger('click');
-        randomTimeRun('roll()');
-    }
-
-    function clickToRoll() {
-        $("#free_play_form_button").trigger('click');
-        randomTimeRun('roll()');
     }
 
     function randomTimeRun(f) {
@@ -80,7 +70,21 @@
         }, 5000 + Math.random() * 5000);
     }
 
-    // Convert BTC to RUB and now days to withdraw
+    // Now days to withdraw
+    function daysForWithdraw() {
+        const winnings = parseFloat($("#winnings").text());
+        if (winnings) {
+            const balance = parseFloat($("#balance").text());
+            const withdraw_limit = parseFloat($("#auto_withdraw_option > div > div > div").text().replace(' MIN. WITHDRAW: ', ''));
+            $(".balanceli").append([
+                '<span style="font-size: 10px;position: absolute;top: 28px;right: 38px;">~ ',
+                Math.round(((withdraw_limit - balance) / winnings) / 24),
+                ' days</span>',
+            ].join(''));
+        }
+    }
+
+    // Convert BTC to RUB
     window.setTimeout(function () {
         const balance = parseFloat($("#balance").text());
         GM_xmlhttpRequest({
@@ -96,13 +100,6 @@
                     '<br />',
                     '<span id="balance_rub" style="font-size: 10px;position: absolute;top: 28px;">' + rub + '&nbsp;RUB</span>'
                 ].join("\n"));
-
-                const winnings = parseFloat($("#winnings").text());
-                if (winnings) {
-                    const withdraw_limit = parseFloat($("#auto_withdraw_option > div > div > div").text().replace(' MIN. WITHDRAW: ', ''));
-                    const days = Math.round(((withdraw_limit - balance) / winnings) / 24);
-                    $(".balanceli").append('<span style="font-size: 10px;position: absolute;top: 28px;right: 38px;">~ ' + days + ' days</span>');
-                }
             }
         });
     }, 2000);
