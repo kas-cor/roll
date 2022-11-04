@@ -98,9 +98,11 @@
                 ].join("\n"));
 
                 const winnings = parseFloat($("#winnings").text());
-                const withdraw_limit = parseFloat($("#auto_withdraw_option > div > div > div").text().replace(' MIN. WITHDRAW: ', ''));
-                const days = Math.round(((withdraw_limit - balance) / winnings) / 24);
-                $(".balanceli").append('<span style="font-size: 10px;position: absolute;top: 28px;right: 38px;">~ ' + days + ' days</span>');
+                if (winnings) {
+                    const withdraw_limit = parseFloat($("#auto_withdraw_option > div > div > div").text().replace(' MIN. WITHDRAW: ', ''));
+                    const days = Math.round(((withdraw_limit - balance) / winnings) / 24);
+                    $(".balanceli").append('<span style="font-size: 10px;position: absolute;top: 28px;right: 38px;">~ ' + days + ' days</span>');
+                }
             }
         });
     }, 2000);
