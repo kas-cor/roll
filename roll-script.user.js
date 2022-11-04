@@ -10,7 +10,7 @@
 // @downloadURL https://raw.githubusercontent.com/kas-cor/roll/master/roll-script.user.js
 // @icon https://raw.githubusercontent.com/kas-cor/roll/master/icon.png
 // @require https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
-// @include https://blockchain.info/tobtc*
+// @match https://blockchain.info/tobtc*
 // @match https://freebitco.in/*
 // @grant GM_xmlhttpRequest
 // @run-at document-end
@@ -27,7 +27,7 @@
         let rewards = [];
         let reward_points = parseInt($(".user_reward_points").text().replace(',', ""));
         $(".rewards_link").click();
-        $("#fp_bonus_rewards div").each(function() {
+        $("#fp_bonus_rewards div").each(function () {
             const percent = parseInt($(this).find(".reward_product_name").text());
             const points = parseInt($(this).find(".reward_dollar_value_style").text().replace(',', ""));
             if (percent && points) {
@@ -74,12 +74,12 @@
 
     function randomTimeRun(f) {
         window.clearTimeout(timer);
-        timer = window.setTimeout(function() {
+        timer = window.setTimeout(function () {
             eval(f);
         }, 5000 + Math.random() * 5000);
     }
 
-    // Convert BTC to RUB
+    // Convert BTC to RUB and now days to withdraw
     window.setTimeout(function () {
         const balance = parseFloat($("#balance").text());
         GM_xmlhttpRequest({
@@ -95,6 +95,11 @@
                     '<br />',
                     '<span id="balance_rub" style="font-size: 10px;position: absolute;top: 28px;">' + rub + '&nbsp;RUB</span>'
                 ].join("\n"));
+
+                const winnings = parseFloat($("#winnings").text());
+                const withdraw_limit = parseFloat($("#auto_withdraw_option > div > div > div").text().replace(' MIN. WITHDRAW: ', ''));
+                const days = ((withdraw_limit - balance) / winnings) / 24;
+                $(".balanceli").append('<span style="font-size: 10px;position: absolute;top: 28px;right: 38px;">~ ' + days + ' days</span>');
             }
         });
     }, 2000);
