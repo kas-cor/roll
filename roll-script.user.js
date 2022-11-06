@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 061122-3
+// @version 061122-5
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -11,7 +11,6 @@
 // @icon https://raw.githubusercontent.com/kas-cor/roll/master/icon.png
 // @match https://blockchain.info/tobtc*
 // @match https://freebitco.in/*
-// @require https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js
 // @require https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant GM_getValue
 // @grant GM_setValue
@@ -70,35 +69,42 @@
      */
     const checkReward = () => new Promise(resolve => {
         let rewards = [];
-        let reward_points = parseInt($(".user_reward_points").text().replace(',', ''));
         logging('Check reward...');
-        $("#fp_bonus_rewards div").each(function () {
-            const percent = parseInt($(this).find(".reward_product_name").text());
-            const points = parseInt($(this).find(".reward_dollar_value_style").text().replace(',', ''));
-            if (percent && points) {
-                rewards.push({
-                    'points': points,
-                    'func': 'fp_bonus_' + percent,
-                });
-            }
-        });
         if ($("#reward_points_bonuses_main_div").text() === '') {
             logging('Get reward...');
-            rewards.forEach(function (v) {
-                if (reward_points >= v.points) {
-                    delay(100).then(() => {
-                        $(".rewards_link").click();
-                        return delay(3000);
-                    }).then(() => {
-                        RedeemRPProduct(v.func);
-                        return delay(3000);
-                    }).then(() => {
-                        $(".free_play_link").click();
-                        return delay(3000);
-                    }).then(() => {
-                        resolve();
+            delay(1000).then(() => {
+                logging('Go to rewards page...');
+                document.querySelector('a.rewards_link').click();
+                return delay(3000);
+            }).then(() => {
+                logging('Get bonus rewards...');
+                for(let v of document.querySelectorAll('#fp_bonus_rewards > div')) {
+                    const points = parseInt(v.querySelector('.reward_dollar_value_style').innerText.replace(',', ''));
+                    const redeem = v.querySelector('button.reward_link_redeem_button_style').attributes.onclick.nodeValue;
+                    rewards.push({
+                        'points': points,
+                        'func': redeem,
                     });
                 }
+                return delay(1000);
+            }).then(() => {
+                const reward_points = parseInt(document.querySelector('.user_reward_points').innerText.replace(',', ''));
+                rewards.forEach(function (v) {
+                    if (reward_points >= v.points) {
+                        delay(1000).then(() => {
+                            logging('Click redeem button...');
+                            eval(v.func);
+                            return delay(1000);
+                        }).then(() => {
+                            logging('Go to free play page...');
+                            document.querySelector('a.free_play_link').click();
+                            return delay(1000);
+                        }).then(() => {
+                            resolve();
+                        });
+                    }
+                });
+                // resolve();
             });
         } else {
             logging('Check reward - pass');
@@ -122,16 +128,16 @@
      * Roll
      */
     const roll = () => {
-        const play_without_captchas_button = $("#play_without_captchas_button");
-        const free_play_form_button = $("#free_play_form_button");
+        const play_without_captchas_button = document.querySelector('#play_without_captchas_button');
+        const free_play_form_button = document.querySelector('#free_play_form_button');
         checkReward().then(() => {
-            if (play_without_captchas_button.is(":visible")) {
+            if (play_without_captchas_button && getComputedStyle(play_without_captchas_button).display !== 'none') {
                 logging('Click without captchas button...');
-                $("#play_without_captchas_button").trigger('click');
+                document.querySelector('#play_without_captchas_button').click();
                 randomTimeRun(roll);
-            } else if (free_play_form_button.is(":visible")) {
+            } else if (free_play_form_button && getComputedStyle(free_play_form_button).display !== 'none') {
                 logging('Click free play button...');
-                $("#free_play_form_button").trigger('click');
+                document.querySelector('#free_play_form_button').click();
                 randomTimeRun(daysForWithdraw);
             }
             logging('Roll - pass');
@@ -143,17 +149,17 @@
      */
     const daysForWithdraw = () => {
         logging('Days for withdraw...');
-        const winnings = parseFloat($("#winnings").text());
+        const winnings = parseFloat(document.querySelector('#winnings').innerText);
         if (winnings) {
-            const balance = parseFloat($("#balance").text());
-            const withdraw_limit = parseFloat($("#auto_withdraw_option > div > div > div").text().replace(' MIN. WITHDRAW: ', ''));
+            const balance = parseFloat(document.querySelector('#balance').innerText);
+            const withdraw_limit = parseFloat(document.querySelector('#auto_withdraw_option > div > div > div').innerText.replace(' MIN. WITHDRAW: ', ''));
             const hours = Math.round(((withdraw_limit - balance) / winnings));
             const days = Math.round(((withdraw_limit - balance) / winnings) / 24);
-            $(".balanceli").append([
-                '<span style="font-size:10px; position absolute; top:28px; right:38px;">',
+            document.querySelector('.balanceli').innerHTML = document.querySelector('.balanceli').innerHTML + [
+                '<span style="font-size:10px; position:absolute; top:28px; right:38px;">',
                 '~&nbsp;' + (days > 0 ? days + '&nbsp;days' : hours + '&nbsp;hours'),
                 '</span>',
-            ].join(''));
+            ].join('');
         } else {
             logging('Days for withdraw - not calculate');
         }
@@ -165,7 +171,7 @@
      */
     window.setTimeout(() => {
         logging('Convert BTC to fiat...');
-        const balance = parseFloat($("#balance").text());
+        const balance = parseFloat(document.querySelector('#balance').innerText);
         const fiat = GM_config.get('FIAT_FOR_CONVERT') || 'USD';
         GM_xmlhttpRequest({
             method: 'GET',
@@ -175,12 +181,12 @@
                 if (response.readyState !== 4) {
                     return;
                 }
-                $(".balanceli").append([
+                document.querySelector('.balanceli').innerHTML = document.querySelector('.balanceli').innerHTML + [
                     '<br/>',
                     '<span style="font-size:10px; position:absolute; top:28px;">',
                     (balance / response.responseText).toFixed(2) + '&nbsp;' + fiat,
                     '</span>'
-                ].join(''));
+                ].join('');
                 logging('Convert BTC to fiat - pass');
             }
         });
