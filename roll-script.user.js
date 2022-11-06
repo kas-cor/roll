@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 061122-1
+// @version 061122-2
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -141,11 +141,11 @@
         if (winnings) {
             const balance = parseFloat($("#balance").text());
             const withdraw_limit = parseFloat($("#auto_withdraw_option > div > div > div").text().replace(' MIN. WITHDRAW: ', ''));
-            const left_hours = Math.round(((withdraw_limit - balance) / winnings));
-            const left_days = Math.round(((withdraw_limit - balance) / winnings) / 24);
+            const hours = Math.round(((withdraw_limit - balance) / winnings));
+            const days = Math.round(((withdraw_limit - balance) / winnings) / 24);
             $(".balanceli").append([
                 '<span style="font-size: 10px;position: absolute;top: 28px;right: 38px;">',
-                '~ ' + left_days > 0 ? left_days + ' days' : left_hours + ' hours',
+                '~ ' + (days > 0 ? days + ' days' : hours + ' hours'),
                 '</span>',
             ].join(''));
         } else {
