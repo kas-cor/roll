@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 061122-2
+// @version 061122-3
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -34,6 +34,12 @@
                 type: 'checkbox',
                 default: false,
                 title: 'Log debug messages to the console'
+            },
+            FIAT_FOR_CONVERT: {
+                label: 'Fiat',
+                type: 'text',
+                default: 'USD',
+                title: 'Fiat for convert BTC'
             },
         },
     })
@@ -144,8 +150,8 @@
             const hours = Math.round(((withdraw_limit - balance) / winnings));
             const days = Math.round(((withdraw_limit - balance) / winnings) / 24);
             $(".balanceli").append([
-                '<span style="font-size: 10px;position: absolute;top: 28px;right: 38px;">',
-                '~ ' + (days > 0 ? days + ' days' : hours + ' hours'),
+                '<span style="font-size:10px; position absolute; top:28px; right:38px;">',
+                '~&nbsp;' + (days > 0 ? days + '&nbsp;days' : hours + '&nbsp;hours'),
                 '</span>',
             ].join(''));
         } else {
@@ -158,22 +164,24 @@
      * Convert BTC to RUB
      */
     window.setTimeout(() => {
-        logging('Convert BTC to RUB...');
+        logging('Convert BTC to fiat...');
         const balance = parseFloat($("#balance").text());
+        const fiat = GM_config.get('FIAT_FOR_CONVERT') || 'USD';
         GM_xmlhttpRequest({
             method: 'GET',
-            url: 'https://blockchain.info/tobtc?currency=RUB&value=1',
+            url: 'https://blockchain.info/tobtc?currency=' + fiat + '&value=1',
             accept: 'text/xml',
             onload: function (response) {
                 if (response.readyState !== 4) {
                     return;
                 }
-                const rub = (balance / response.responseText).toFixed(2);
                 $(".balanceli").append([
-                    '<br />',
-                    '<span id="balance_rub" style="font-size: 10px;position: absolute;top: 28px;">' + rub + '&nbsp;RUB</span>'
-                ].join("\n"));
-                logging('Convert BTC to RUB - pass');
+                    '<br/>',
+                    '<span style="font-size:10px; position:absolute; top:28px;">',
+                    (balance / response.responseText).toFixed(2) + '&nbsp;' + fiat,
+                    '</span>'
+                ].join(''));
+                logging('Convert BTC to fiat - pass');
             }
         });
     }, 3000);
