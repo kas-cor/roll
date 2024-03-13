@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 121222
+// @version 20241303
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -11,7 +11,7 @@
 // @icon https://raw.githubusercontent.com/kas-cor/roll/master/icon.png
 // @match https://blockchain.info/tobtc*
 // @match https://freebitco.in/*
-// @require https://openuserjs.org/src/libs/sizzle/GM_config.js
+// @require https://cdn.jsdelivr.net/gh/sizzlemctwizzle/GM_config@43fd0fe4de1166f343883511e53546e87840aeaf/gm_config.js
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_registerMenuCommand
@@ -21,31 +21,37 @@
 
 /* global GM_config, GM_info, GM_registerMenuCommand */
 
-(function () {
+(() => {
     'use strict';
 
     GM_config.init({
         id: 'auto_roll_config',
         title: GM_info.script.name + ' Settings',
         fields: {
-            DEBUG_MODE: {
-                label: 'Debug mode',
-                type: 'checkbox',
-                default: false,
-                title: 'Log debug messages to the console'
-            },
             FIAT_FOR_CONVERT: {
                 label: 'Fiat',
                 type: 'text',
                 default: 'USD',
-                title: 'Fiat for convert BTC'
+                title: 'Fiat for convert BTC',
+            },
+            SPEND_REWARD_POINTS: {
+                label: 'Spend reward points',
+                type: 'checkbox',
+                default: true,
+                title: 'Not collect reward, spend them',
+            },
+            DEBUG_MODE: {
+                label: 'Debug mode',
+                type: 'checkbox',
+                default: false,
+                title: 'Log debug messages to the console',
             },
         },
-    })
+    });
 
     GM_registerMenuCommand('Settings', () => {
-        GM_config.open()
-    })
+        GM_config.open();
+    });
 
     let timer;
 
@@ -68,6 +74,9 @@
      * Check reward
      */
     const checkReward = () => new Promise(resolve => {
+        if (!GM_config.get('SPEND_REWARD_POINTS')) {
+            resolve();
+        }
         let rewards = [];
         logging('Check reward...');
         if (document.querySelector('#reward_points_bonuses_main_div').innerText === '') {
@@ -89,11 +98,13 @@
                 return delay(1000);
             }).then(() => {
                 const reward_points = parseInt(document.querySelector('.user_reward_points').innerText.replace(',', ''));
+                let break_flag = true;
                 rewards.forEach(function (v) {
-                    if (reward_points >= v.points) {
+                    if (reward_points >= v.points && break_flag) {
                         delay(1000).then(() => {
-                            logging('Click redeem button...');
+                            logging('Click redeem [' + v.func + '] button...');
                             eval(v.func);
+                            break_flag = false;
                             return delay(1000);
                         }).then(() => {
                             logging('Go to free play page...');
@@ -104,7 +115,9 @@
                         });
                     }
                 });
-                // resolve();
+                if (break_flag) {
+                    resolve();
+                }
             });
         } else {
             logging('Check reward - pass');
