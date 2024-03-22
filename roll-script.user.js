@@ -2,7 +2,7 @@
 // @name Auto Roll freebitco.in
 // @namespace auto-roll-user-js
 // @description Auto roll in freebitco.in
-// @version 20241303
+// @version 20242203
 // @author kas-cor
 // @homepageURL https://github.com/kas-cor/roll
 // @supportURL https://github.com/kas-cor/roll/issues
@@ -74,12 +74,9 @@
      * Check reward
      */
     const checkReward = () => new Promise(resolve => {
-        if (!GM_config.get('SPEND_REWARD_POINTS')) {
-            resolve();
-        }
         let rewards = [];
         logging('Check reward...');
-        if (document.querySelector('#reward_points_bonuses_main_div').innerText === '') {
+        if (document.querySelector('#reward_points_bonuses_main_div').innerText === '' && GM_config.get('SPEND_REWARD_POINTS')) {
             logging('Get reward...');
             delay(1000).then(() => {
                 logging('Go to rewards page...');
@@ -101,10 +98,10 @@
                 let break_flag = true;
                 rewards.forEach(function (v) {
                     if (reward_points >= v.points && break_flag) {
+                        break_flag = false;
                         delay(1000).then(() => {
                             logging('Click redeem [' + v.func + '] button...');
                             eval(v.func);
-                            break_flag = false;
                             return delay(1000);
                         }).then(() => {
                             logging('Go to free play page...');
